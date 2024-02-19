@@ -2,6 +2,7 @@ package simpleset
 
 import (
 	"bufio"
+	"math/rand"
 	"os"
 	"strings"
 	"testing"
@@ -25,6 +26,8 @@ var TheWords = func() []string {
 	slices.Sort(results)
 	return results
 }()
+
+func RandomWord() string { return TheWords[rand.Intn(len(TheWords))] }
 
 func TestSimpleSet(t *testing.T) {
 	set := New[string]()
@@ -90,5 +93,26 @@ func TestSimpleSet(t *testing.T) {
 	set.Reset()
 	if want, got := 0, set.Len(); want != got {
 		t.Fatalf("error: wanted %d keys; got %d\n", want, got)
+	}
+}
+
+func BenchmarkAdd(b *testing.B) {
+	set := New[string]()
+	for i := 0; i < b.N; i++ {
+		set.Add(RandomWord())
+	}
+}
+
+func BenchmarkDrop(b *testing.B) {
+	set := NewFromSlice(TheWords)
+	for i := 0; i < b.N; i++ {
+		set.Drop(RandomWord())
+	}
+}
+
+func BenchmarkContains(b *testing.B) {
+	set := NewFromSlice(TheWords)
+	for i := 0; i < b.N; i++ {
+		set.Contains(RandomWord())
 	}
 }
